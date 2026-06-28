@@ -469,6 +469,17 @@ a { text-decoration: none; color: inherit; }
 .yt-player { position: relative; padding-bottom: 177.77%; height: 0; overflow: hidden; }
 .yt-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
 
+.reel-hidden { display: none !important; }
+
+.video-more-wrap { text-align: center; margin: 4px 0 28px; }
+.video-more-btn {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 100px; padding: 10px 40px;
+  font-size: 1rem; color: var(--text-light); cursor: pointer;
+  letter-spacing: 6px; transition: var(--ease); box-shadow: var(--shadow);
+}
+.video-more-btn:hover { border-color: var(--sage); color: var(--sage-dark); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
 .video-cta { text-align: center; padding-top: 8px; }
 
 /* ============ INSTAGRAM AUTO-SCROLL ============ */
@@ -614,8 +625,25 @@ a { text-decoration: none; color: inherit; }
   .about-right { max-width: 340px; margin: 0 auto; width: 100%; }
 
   .sb-block { padding: 24px 20px; }
-  .h-timeline-track { gap: 0; }
-  .ht-item { min-width: 140px; padding: 0 8px; }
+
+  /* 커리어 타임라인 → 세로 변환 */
+  .h-timeline { padding-left: 28px; }
+  .h-timeline-line {
+    top: 4px; bottom: 0; left: 7px; right: auto;
+    width: 2px; height: auto;
+    background: linear-gradient(to bottom, var(--sage) 0%, var(--sage) 90%, rgba(107,158,122,0.1) 100%);
+  }
+  .h-timeline-track { flex-direction: column; gap: 20px; align-items: stretch; }
+  .ht-item {
+    flex-direction: column; align-items: flex-start;
+    position: relative; padding: 0; min-width: unset; flex: none;
+  }
+  .ht-dot { position: absolute; left: -21px; top: 2px; margin-bottom: 0; }
+  .ht-dot.ht-dot-active { left: -23px; top: 0; }
+  .ht-period { font-size: 0.72rem; margin-bottom: 6px; }
+  .ht-card { width: 100%; }
+  .ht-period-range { max-height: none !important; opacity: 1 !important; margin-top: 4px !important; }
+  .ht-item:hover .ht-card { transform: none; }
 
   .reel-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
 

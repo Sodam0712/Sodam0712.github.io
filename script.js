@@ -68,11 +68,17 @@ function buildHeroScroll() {
 // ============ YOUTUBE REEL GRID (영상 섹션) ============
 function buildYouTubeGrid() {
   const grid = document.getElementById('ytGrid');
+  const moreWrap = document.getElementById('videoMoreWrap');
+  const moreBtn = document.getElementById('videoMoreBtn');
   if (!grid) return;
 
-  ytVideoIds.forEach(id => {
+  const isMobile = window.innerWidth <= 900;
+  const initialCount = isMobile ? 6 : 14;
+
+  ytVideoIds.forEach((id, index) => {
     const item = document.createElement('div');
     item.className = 'reel-item';
+    if (index >= initialCount) item.classList.add('reel-hidden');
     item.innerHTML = `
       <img class="reel-thumb"
         src="https://img.youtube.com/vi/${id}/maxresdefault.jpg"
@@ -86,6 +92,17 @@ function buildYouTubeGrid() {
     item.addEventListener('click', () => openPlayer(id));
     grid.appendChild(item);
   });
+
+  if (moreBtn && moreWrap) {
+    if (ytVideoIds.length <= initialCount) {
+      moreWrap.style.display = 'none';
+    } else {
+      moreBtn.addEventListener('click', () => {
+        document.querySelectorAll('.reel-hidden').forEach(el => el.classList.remove('reel-hidden'));
+        moreWrap.style.display = 'none';
+      });
+    }
+  }
 }
 
 // ============ VIDEO OVERLAY PLAYER ============
