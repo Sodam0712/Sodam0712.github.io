@@ -45,17 +45,21 @@ function buildHeroScroll() {
   const track = document.getElementById('heroScrollTrack');
   if (!track) return;
 
+  const isMobile = window.innerWidth <= 768;
+  // 모바일: 카드 수 절반으로 줄여 DOM/메모리 부담 감소
+  const source = isMobile ? ytVideoIds.slice(0, 12) : ytVideoIds;
   // 원본 + 복사본 (seamless loop)
-  const all = [...ytVideoIds, ...ytVideoIds];
+  const all = [...source, ...source];
+  // 모바일: mqdefault(320×180) 직접 사용 — maxresdefault는 쇼츠에서 대부분 404라 더블 요청 발생
+  const thumbQuality = isMobile ? 'mqdefault' : 'hqdefault';
 
   all.forEach(id => {
     const card = document.createElement('div');
     card.className = 'scroll-card';
     card.innerHTML = `
-      <img src="https://img.youtube.com/vi/${id}/maxresdefault.jpg"
+      <img src="https://img.youtube.com/vi/${id}/${thumbQuality}.jpg"
            alt="소담 유튜브 쇼츠"
-           loading="lazy"
-           onerror="this.src='https://img.youtube.com/vi/${id}/hqdefault.jpg'">
+           loading="lazy">
       <div class="scroll-card-overlay">
         <div class="scroll-play-btn">▶</div>
       </div>
@@ -75,16 +79,19 @@ function buildYouTubeGrid() {
   const isMobile = window.innerWidth <= 900;
   const initialCount = isMobile ? 6 : 14;
 
+  const isMobile = window.innerWidth <= 900;
+  // hqdefault 직접 사용 — maxresdefault는 쇼츠에서 대부분 404 → 더블 요청 방지
+  const thumbQ = isMobile ? 'mqdefault' : 'hqdefault';
+
   ytVideoIds.forEach((id, index) => {
     const item = document.createElement('div');
     item.className = 'reel-item';
     if (index >= initialCount) item.classList.add('reel-hidden');
     item.innerHTML = `
       <img class="reel-thumb"
-        src="https://img.youtube.com/vi/${id}/maxresdefault.jpg"
+        src="https://img.youtube.com/vi/${id}/${thumbQ}.jpg"
         alt="소담 유튜브 영상"
-        loading="lazy"
-        onerror="this.src='https://img.youtube.com/vi/${id}/hqdefault.jpg'">
+        loading="lazy">
       <div class="reel-play">
         <div class="reel-play-btn">▶</div>
       </div>
@@ -162,8 +169,11 @@ function buildIgAutoScroll() {
   const track = document.getElementById('igStrip');
   if (!track) return;
 
-  // 원본 15개 + 복사본 15개 = seamless loop
-  [...igCodes, ...igCodes].forEach(code => {
+  const isMobile = window.innerWidth <= 768;
+  // 모바일: 임베드 수 줄임 (embed.js가 모바일에서 매우 무거움)
+  const source = isMobile ? igCodes.slice(0, 8) : igCodes;
+
+  [...source, ...source].forEach(code => {
     const wrap = document.createElement('div');
     wrap.className = 'ig-embed-item';
     const bq = document.createElement('blockquote');
@@ -178,13 +188,24 @@ function buildIgAutoScroll() {
 }
 
 function initIgEmbeds() {
+  // embed.js 로드 완료 시 호출 — 이미 섹션 진입했으면 바로 빌드
+  if (igBuilt) { window.instgrm && window.instgrm.Embeds.process(); return; }
   buildIgAutoScroll();
 }
 
 window.addEventListener('load', () => {
   buildHeroScroll();
   buildYouTubeGrid();
-  setTimeout(() => {
-    if (!igBuilt) buildIgAutoScroll();
-  }, 2000);
+
+  // 인스타 섹션 진입 시에만 빌드 (모바일 초기 로드 부담 제거)
+  const igSection = document.getElementById('instagram');
+  if (igSection) {
+    const igObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        igObserver.disconnect();
+        if (!igBuilt) buildIgAutoScroll();
+      }
+    }, { threshold: 0.1 });
+    igObserver.observe(igSection);
+  }
 });
